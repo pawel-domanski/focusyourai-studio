@@ -1,0 +1,442 @@
+// ===== ZAPYTANIA GROQ DLA AI GUIDE =====
+
+// 1. Pobierz wszystkie AI Guide z pełną strukturą
+*[_type == "aiGuide"] | order(name asc) {
+  _id,
+  name,
+  subtitle,
+  image,
+  icon,
+  courses[]{
+    _key,
+    part,
+    subject,
+    desc,
+    icon,
+    body[]{
+      _key,
+      title,
+      icon,
+      image,
+      content
+    }
+  },
+  _createdAt,
+  _updatedAt
+}
+
+// 2. Pobierz jeden AI Guide po ID z pełną strukturą
+*[_type == "aiGuide" && _id == "GUIDE_ID"][0] {
+  _id,
+  name,
+  subtitle,
+  image,
+  icon,
+  courses[]{
+    _key,
+    part,
+    subject,
+    desc,
+    icon,
+    body[]{
+      _key,
+      title,
+      icon,
+      image,
+      content
+    }
+  },
+  _createdAt,
+  _updatedAt
+}
+
+// 3. Pobierz tylko podstawowe informacje o AI Guide (bez zagnieżdżonych danych)
+*[_type == "aiGuide"] | order(name asc) {
+  _id,
+  name,
+  subtitle,
+  image,
+  icon,
+  "coursesCount": count(courses),
+  _createdAt,
+  _updatedAt
+}
+
+// 4. Wyszukiwanie AI Guide po nazwie lub podtytule
+*[_type == "aiGuide" && (
+  name match "*SEARCH_TERM*" ||
+  subtitle match "*SEARCH_TERM*"
+)] | order(name asc) {
+  _id,
+  name,
+  subtitle,
+  image,
+  icon,
+  courses[]{
+    _key,
+    part,
+    subject,
+    desc,
+    icon,
+    body[]{
+      _key,
+      title,
+      icon,
+      image,
+      content
+    }
+  },
+  _createdAt,
+  _updatedAt
+}
+
+// 5. Pobierz AI Guide z konkretnym rozdziałem (part)
+*[_type == "aiGuide" && "PART_NAME" in courses[].part] {
+  _id,
+  name,
+  subtitle,
+  image,
+  icon,
+  courses[part == "PART_NAME"]{
+    _key,
+    part,
+    subject,
+    desc,
+    icon,
+    body[]{
+      _key,
+      title,
+      icon,
+      image,
+      content
+    }
+  },
+  _createdAt,
+  _updatedAt
+}
+
+// 6. Pobierz tylko kursy z konkretnego AI Guide
+*[_type == "aiGuide" && _id == "GUIDE_ID"][0].courses[]{
+  _key,
+  part,
+  subject,
+  desc,
+  icon,
+  body[]{
+    _key,
+    title,
+    icon,
+    image,
+    content
+  }
+}
+
+// 7. Pobierz tylko elementy body z konkretnego kursu AI Guide
+*[_type == "aiGuide" && _id == "GUIDE_ID"][0].courses[_key == "COURSE_KEY"][0].body[]{
+  _key,
+  title,
+  icon,
+  image,
+  content
+}
+
+// 8. Statystyki AI Guide
+{
+  "totalGuides": count(*[_type == "aiGuide"]),
+  "totalCourses": count(*[_type == "aiGuide"].courses[]),
+  "totalBodyItems": count(*[_type == "aiGuide"].courses[].body[]),
+  "guideWithMostCourses": *[_type == "aiGuide"] | order(count(courses) desc)[0] {
+    name,
+    "coursesCount": count(courses)
+  }
+}
+
+// 9. Pobierz najnowsze AI Guide (ostatnio utworzone)
+*[_type == "aiGuide"] | order(_createdAt desc)[0..4] {
+  _id,
+  name,
+  subtitle,
+  image,
+  icon,
+  "coursesCount": count(courses),
+  _createdAt,
+  _updatedAt
+}
+
+// 10. Pobierz AI Guide z obrazkami (tylko te które mają obrazek)
+*[_type == "aiGuide" && defined(image)] {
+  _id,
+  name,
+  subtitle,
+  image,
+  icon,
+  courses[]{
+    _key,
+    part,
+    subject,
+    desc,
+    icon,
+    body[]{
+      _key,
+      title,
+      icon,
+      image,
+      content
+    }
+  },
+  _createdAt,
+  _updatedAt
+}
+
+// 11. Pobierz unikalne części (parts) z wszystkich AI Guide
+array::unique(*[_type == "aiGuide"].courses[].part)
+
+// 12. Pobierz AI Guide pogrupowane po ikonach
+*[_type == "aiGuide"] | order(icon asc) {
+  _id,
+  name,
+  subtitle,
+  icon,
+  "coursesCount": count(courses)
+} | group(icon)
+
+// 13. Pobierz konkretny element body z AI Guide po tytule
+*[_type == "aiGuide"] {
+  _id,
+  name,
+  courses[]{
+    _key,
+    subject,
+    body[title match "*SEARCH_TITLE*"]{
+      _key,
+      title,
+      icon,
+      image,
+      content
+    }
+  }
+}[count(courses[].body) > 0]
+
+// 14. Pobierz AI Guide z informacją o liczbie elementów
+*[_type == "aiGuide"] | order(name asc) {
+  _id,
+  name,
+  subtitle,
+  image,
+  icon,
+  "coursesCount": count(courses),
+  "totalBodyItems": count(courses[].body[]),
+  courses[]{
+    _key,
+    part,
+    subject,
+    desc,
+    icon,
+    "bodyItemsCount": count(body),
+    body[]{
+      _key,
+      title,
+      icon,
+      image,
+      content
+    }
+  },
+  _createdAt,
+  _updatedAt
+}
+
+// 15. Pobierz AI Guide z paginacją
+*[_type == "aiGuide"] | order(name asc) [0..9] {
+  _id,
+  name,
+  subtitle,
+  image,
+  icon,
+  "coursesCount": count(courses),
+  _createdAt,
+  _updatedAt
+}
+
+// 16. Wyszukiwanie w treści body items
+*[_type == "aiGuide"] {
+  _id,
+  name,
+  subtitle,
+  courses[]{
+    _key,
+    subject,
+    body[pt::text(content) match "*SEARCH_CONTENT*"]{
+      _key,
+      title,
+      icon,
+      image,
+      content
+    }
+  }
+}[count(courses[].body) > 0]
+
+// 17. Pobierz AI Guide z ostatnio zaktualizowanymi kursami
+*[_type == "aiGuide"] | order(_updatedAt desc) {
+  _id,
+  name,
+  subtitle,
+  image,
+  icon,
+  courses[]{
+    _key,
+    part,
+    subject,
+    desc,
+    icon,
+    body[]{
+      _key,
+      title,
+      icon,
+      image,
+      content
+    }
+  },
+  _createdAt,
+  _updatedAt
+}
+
+// 18. Pobierz tylko AI Guide z określoną liczbą kursów
+*[_type == "aiGuide" && count(courses) >= 3] {
+  _id,
+  name,
+  subtitle,
+  "coursesCount": count(courses),
+  courses[]{
+    _key,
+    part,
+    subject,
+    desc,
+    icon
+  }
+}
+
+// 19. Eksport wszystkich danych AI Guide (pełna struktura)
+*[_type == "aiGuide"] {
+  _id,
+  _type,
+  _createdAt,
+  _updatedAt,
+  _rev,
+  name,
+  subtitle,
+  image,
+  icon,
+  courses[]{
+    _key,
+    _type,
+    part,
+    subject,
+    desc,
+    icon,
+    body[]{
+      _key,
+      _type,
+      title,
+      icon,
+      image,
+      content
+    }
+  }
+}
+
+// 20. Sprawdź integralność danych AI Guide
+*[_type == "aiGuide"] {
+  _id,
+  name,
+  "hasSubtitle": defined(subtitle),
+  "hasImage": defined(image),
+  "hasIcon": defined(icon),
+  "coursesCount": count(courses),
+  "coursesWithoutBody": count(courses[count(body) == 0]),
+  "totalBodyItems": count(courses[].body[]),
+  "bodyItemsWithoutContent": count(courses[].body[!defined(content) || count(content) == 0])
+}
+
+// 21. Pobierz kursy pogrupowane po części (part)
+*[_type == "aiGuide"] {
+  _id,
+  name,
+  courses[]{
+    _key,
+    part,
+    subject,
+    desc,
+    icon
+  }
+} | {
+  "parts": array::unique(courses[].part),
+  "coursesByPart": courses[] | group(part)
+}
+
+// 22. Pobierz AI Guide z kursami zawierającymi konkretną ikonę
+*[_type == "aiGuide" && "ICON_NAME" in courses[].icon] {
+  _id,
+  name,
+  subtitle,
+  courses[icon == "ICON_NAME"]{
+    _key,
+    part,
+    subject,
+    desc,
+    icon,
+    body[]{
+      _key,
+      title,
+      icon,
+      image,
+      content
+    }
+  }
+}
+
+// 23. Pobierz elementy body z obrazkami
+*[_type == "aiGuide"] {
+  _id,
+  name,
+  courses[]{
+    _key,
+    subject,
+    body[defined(image)]{
+      _key,
+      title,
+      icon,
+      image,
+      content
+    }
+  }
+}[count(courses[].body) > 0]
+
+// 24. Pobierz AI Guide z najdłuższymi opisami
+*[_type == "aiGuide"] | order(length(subtitle) desc) {
+  _id,
+  name,
+  subtitle,
+  "subtitleLength": length(subtitle),
+  "coursesCount": count(courses)
+}
+
+// 25. Wyszukaj AI Guide po przedmiocie kursu
+*[_type == "aiGuide" && "SUBJECT_SEARCH" in courses[].subject] {
+  _id,
+  name,
+  subtitle,
+  courses[subject match "*SUBJECT_SEARCH*"]{
+    _key,
+    part,
+    subject,
+    desc,
+    icon,
+    body[]{
+      _key,
+      title,
+      icon,
+      image,
+      content
+    }
+  }
+} 

@@ -1,0 +1,400 @@
+// ===== ZAPYTANIA GROQ DLA CHALLENGES =====
+
+// 1. Pobierz wszystkie wyzwania z pełną strukturą
+*[_type == "challenges"] | order(challenge_id asc) {
+  _id,
+  challenge_id,
+  title,
+  description,
+  time_duration,
+  image,
+  difficulty,
+  category,
+  is_active,
+  days[]{
+    _key,
+    title,
+    description,
+    icon,
+    image,
+    content
+  },
+  _createdAt,
+  _updatedAt
+}
+
+// 2. Pobierz jedno wyzwanie po ID
+*[_type == "challenges" && _id == "CHALLENGE_ID"][0] {
+  _id,
+  challenge_id,
+  title,
+  description,
+  time_duration,
+  image,
+  difficulty,
+  category,
+  is_active,
+  days[]{
+    _key,
+    title,
+    description,
+    icon,
+    image,
+    content
+  },
+  _createdAt,
+  _updatedAt
+}
+
+// 3. Pobierz tylko aktywne wyzwania
+*[_type == "challenges" && is_active == true] | order(challenge_id asc) {
+  _id,
+  challenge_id,
+  title,
+  description,
+  time_duration,
+  image,
+  difficulty,
+  category,
+  days[]{
+    _key,
+    title,
+    description,
+    icon,
+    image,
+    content
+  }
+}
+
+// 4. Wyszukiwanie wyzwań
+*[_type == "challenges" && (
+  title match "*SEARCH_TERM*" ||
+  description match "*SEARCH_TERM*"
+)] | order(challenge_id asc) {
+  _id,
+  challenge_id,
+  title,
+  description,
+  time_duration,
+  difficulty,
+  category
+}
+
+// 5. Statystyki wyzwań
+{
+  "totalChallenges": count(*[_type == "challenges"]),
+  "activeChallenges": count(*[_type == "challenges" && is_active == true]),
+  "totalDays": count(*[_type == "challenges"].days[])
+}
+
+// 6. Pobierz tylko podstawowe informacje o wyzwaniach (bez dni)
+*[_type == "challenges"] | order(challenge_id asc) {
+  _id,
+  challenge_id,
+  title,
+  description,
+  time_duration,
+  image,
+  difficulty,
+  category,
+  is_active,
+  "daysCount": count(days),
+  _createdAt,
+  _updatedAt
+}
+
+// 7. Pobierz wyzwania według kategorii
+*[_type == "challenges" && category == "CATEGORY_NAME"] | order(challenge_id asc) {
+  _id,
+  challenge_id,
+  title,
+  description,
+  time_duration,
+  image,
+  difficulty,
+  category,
+  is_active,
+  days[]{
+    _key,
+    title,
+    description,
+    icon,
+    image,
+    content
+  },
+  _createdAt,
+  _updatedAt
+}
+
+// 8. Pobierz wyzwania według poziomu trudności
+*[_type == "challenges" && difficulty == "DIFFICULTY_LEVEL"] | order(challenge_id asc) {
+  _id,
+  challenge_id,
+  title,
+  description,
+  time_duration,
+  image,
+  difficulty,
+  category,
+  is_active,
+  days[]{
+    _key,
+    title,
+    description,
+    icon,
+    image,
+    content
+  },
+  _createdAt,
+  _updatedAt
+}
+
+// 9. Pobierz wyzwania według czasu trwania
+*[_type == "challenges" && time_duration == "TIME_DURATION"] | order(challenge_id asc) {
+  _id,
+  challenge_id,
+  title,
+  description,
+  time_duration,
+  image,
+  difficulty,
+  category,
+  is_active,
+  "daysCount": count(days),
+  _createdAt,
+  _updatedAt
+}
+
+// 10. Pobierz tylko dni z konkretnego wyzwania
+*[_type == "challenges" && _id == "CHALLENGE_ID"][0].days[]{
+  _key,
+  title,
+  description,
+  icon,
+  image,
+  content
+}
+
+// 11. Pobierz konkretny dzień z wyzwania
+*[_type == "challenges" && _id == "CHALLENGE_ID"][0].days[_key == "DAY_KEY"][0] {
+  _key,
+  title,
+  description,
+  icon,
+  image,
+  content
+}
+
+// 12. Pobierz wyzwania z obrazkami
+*[_type == "challenges" && defined(image)] {
+  _id,
+  challenge_id,
+  title,
+  description,
+  time_duration,
+  image,
+  difficulty,
+  category,
+  is_active,
+  days[]{
+    _key,
+    title,
+    description,
+    icon,
+    image,
+    content
+  },
+  _createdAt,
+  _updatedAt
+}
+
+// 13. Pobierz unikalne kategorie wyzwań
+array::unique(*[_type == "challenges"].category)
+
+// 14. Pobierz unikalne poziomy trudności
+array::unique(*[_type == "challenges"].difficulty)
+
+// 15. Pobierz unikalne czasy trwania
+array::unique(*[_type == "challenges"].time_duration)
+
+// 16. Wyszukiwanie w treści dni
+*[_type == "challenges"] {
+  _id,
+  challenge_id,
+  title,
+  days[pt::text(content) match "*SEARCH_CONTENT*"]{
+    _key,
+    title,
+    description,
+    icon,
+    image,
+    content
+  }
+}[count(days) > 0]
+
+// 17. Pobierz wyzwania z określoną liczbą dni
+*[_type == "challenges" && count(days) >= MIN_DAYS && count(days) <= MAX_DAYS] {
+  _id,
+  challenge_id,
+  title,
+  description,
+  time_duration,
+  "daysCount": count(days),
+  difficulty,
+  category,
+  is_active
+}
+
+// 18. Pobierz wyzwania z paginacją
+*[_type == "challenges"] | order(challenge_id asc) [0..9] {
+  _id,
+  challenge_id,
+  title,
+  description,
+  time_duration,
+  image,
+  difficulty,
+  category,
+  is_active,
+  "daysCount": count(days),
+  _createdAt,
+  _updatedAt
+}
+
+// 19. Pobierz wyzwania pogrupowane po kategorii
+*[_type == "challenges"] | order(category asc) {
+  _id,
+  challenge_id,
+  title,
+  description,
+  time_duration,
+  difficulty,
+  category,
+  is_active,
+  "daysCount": count(days)
+} | group(category)
+
+// 20. Pobierz wyzwania pogrupowane po poziomie trudności
+*[_type == "challenges"] | order(difficulty asc) {
+  _id,
+  challenge_id,
+  title,
+  description,
+  time_duration,
+  difficulty,
+  category,
+  is_active,
+  "daysCount": count(days)
+} | group(difficulty)
+
+// 21. Sprawdź integralność danych wyzwań
+*[_type == "challenges"] {
+  _id,
+  challenge_id,
+  title,
+  "hasDescription": defined(description),
+  "hasImage": defined(image),
+  "hasDifficulty": defined(difficulty),
+  "hasCategory": defined(category),
+  "daysCount": count(days),
+  "daysWithoutContent": count(days[!defined(content) || count(content) == 0]),
+  "daysWithoutDescription": count(days[!defined(description) || description == ""])
+}
+
+// 22. Eksport wszystkich danych wyzwań (pełna struktura)
+*[_type == "challenges"] {
+  _id,
+  _type,
+  _createdAt,
+  _updatedAt,
+  _rev,
+  challenge_id,
+  title,
+  description,
+  time_duration,
+  image,
+  difficulty,
+  category,
+  is_active,
+  days[]{
+    _key,
+    _type,
+    title,
+    description,
+    icon,
+    image,
+    content
+  }
+}
+
+// 23. Pobierz wyzwania z rozszerzonymi informacjami
+*[_type == "challenges"] | order(challenge_id asc) {
+  _id,
+  challenge_id,
+  title,
+  description,
+  time_duration,
+  image,
+  difficulty,
+  category,
+  is_active,
+  "daysCount": count(days),
+  "daysWithImages": count(days[defined(image)]),
+  "totalContentBlocks": count(days[].content[]),
+  days[]{
+    _key,
+    title,
+    description,
+    icon,
+    image,
+    content,
+    "hasImage": defined(image),
+    "contentBlocks": count(content)
+  },
+  _createdAt,
+  _updatedAt
+}
+
+// 24. Wyszukaj wyzwania po tytule dnia
+*[_type == "challenges" && "DAY_TITLE_SEARCH" in days[].title] {
+  _id,
+  challenge_id,
+  title,
+  description,
+  days[title match "*DAY_TITLE_SEARCH*"]{
+    _key,
+    title,
+    description,
+    icon,
+    image,
+    content
+  }
+}
+
+// 25. Pobierz dni z obrazkami
+*[_type == "challenges"] {
+  _id,
+  challenge_id,
+  title,
+  days[defined(image)]{
+    _key,
+    title,
+    description,
+    icon,
+    image,
+    content
+  }
+}[count(days) > 0]
+
+// 26. Pobierz wyzwania posortowane według liczby dni
+*[_type == "challenges"] | order(count(days) desc) {
+  _id,
+  challenge_id,
+  title,
+  description,
+  time_duration,
+  "daysCount": count(days),
+  difficulty,
+  category,
+  is_active
+} 

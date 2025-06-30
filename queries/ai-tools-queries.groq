@@ -1,0 +1,509 @@
+// ===== ZAPYTANIA GROQ DLA AI TOOLS =====
+
+// 1. Pobierz wszystkie narzędzia AI z pełną strukturą
+*[_type == "aiTools"] | order(name asc) {
+  _id,
+  name,
+  content_date,
+  code_content,
+  paragraph_content,
+  icon,
+  link,
+  price_model,
+  price,
+  billing,
+  refund,
+  tags,
+  type,
+  _createdAt,
+  _updatedAt
+}
+
+// 2. Pobierz jedno narzędzie po ID
+*[_type == "aiTools" && _id == "TOOL_ID"][0] {
+  _id,
+  name,
+  content_date,
+  code_content,
+  paragraph_content,
+  icon,
+  link,
+  price_model,
+  price,
+  billing,
+  refund,
+  tags,
+  type,
+  _createdAt,
+  _updatedAt
+}
+
+// 3. Pobierz podstawowe informacje o narzędziach (bez treści)
+*[_type == "aiTools"] | order(name asc) {
+  _id,
+  name,
+  icon,
+  link,
+  price_model,
+  price,
+  billing,
+  type,
+  "tagsCount": count(tags),
+  _createdAt,
+  _updatedAt
+}
+
+// 4. Wyszukiwanie narzędzi po nazwie lub opisie
+*[_type == "aiTools" && (
+  name match "*SEARCH_TERM*" ||
+  paragraph_content match "*SEARCH_TERM*" ||
+  code_content match "*SEARCH_TERM*"
+)] | order(name asc) {
+  _id,
+  name,
+  content_date,
+  paragraph_content,
+  icon,
+  link,
+  price_model,
+  price,
+  type,
+  tags,
+  _createdAt,
+  _updatedAt
+}
+
+// 5. Pobierz narzędzia według modelu cenowego
+*[_type == "aiTools" && price_model == "PRICE_MODEL"] | order(name asc) {
+  _id,
+  name,
+  paragraph_content,
+  icon,
+  link,
+  price_model,
+  price,
+  billing,
+  refund,
+  type,
+  tags,
+  _createdAt,
+  _updatedAt
+}
+
+// 6. Pobierz darmowe narzędzia
+*[_type == "aiTools" && price_model == "free"] | order(name asc) {
+  _id,
+  name,
+  paragraph_content,
+  icon,
+  link,
+  price_model,
+  type,
+  tags,
+  _createdAt,
+  _updatedAt
+}
+
+// 7. Pobierz narzędzia freemium
+*[_type == "aiTools" && price_model == "freemium"] | order(name asc) {
+  _id,
+  name,
+  paragraph_content,
+  icon,
+  link,
+  price_model,
+  price,
+  billing,
+  type,
+  tags,
+  _createdAt,
+  _updatedAt
+}
+
+// 8. Pobierz narzędzia według typu
+*[_type == "aiTools" && type == "TOOL_TYPE"] | order(name asc) {
+  _id,
+  name,
+  paragraph_content,
+  icon,
+  link,
+  price_model,
+  price,
+  billing,
+  type,
+  tags,
+  _createdAt,
+  _updatedAt
+}
+
+// 9. Pobierz narzędzia według rozliczenia
+*[_type == "aiTools" && billing == "BILLING_TYPE"] | order(name asc) {
+  _id,
+  name,
+  paragraph_content,
+  icon,
+  link,
+  price_model,
+  price,
+  billing,
+  refund,
+  type,
+  tags,
+  _createdAt,
+  _updatedAt
+}
+
+// 10. Pobierz narzędzia z określoną polityką zwrotów
+*[_type == "aiTools" && refund == "REFUND_POLICY"] | order(name asc) {
+  _id,
+  name,
+  paragraph_content,
+  icon,
+  link,
+  price_model,
+  price,
+  billing,
+  refund,
+  type,
+  tags,
+  _createdAt,
+  _updatedAt
+}
+
+// 11. Wyszukiwanie narzędzi po tagach
+*[_type == "aiTools" && "SEARCH_TAG" in tags] | order(name asc) {
+  _id,
+  name,
+  paragraph_content,
+  icon,
+  link,
+  price_model,
+  price,
+  type,
+  tags,
+  _createdAt,
+  _updatedAt
+}
+
+// 12. Pobierz narzędzia z linkami (mające strony internetowe)
+*[_type == "aiTools" && defined(link)] | order(name asc) {
+  _id,
+  name,
+  paragraph_content,
+  icon,
+  link,
+  price_model,
+  price,
+  type,
+  tags,
+  _createdAt,
+  _updatedAt
+}
+
+// 13. Pobierz najnowsze narzędzia
+*[_type == "aiTools"] | order(_createdAt desc)[0..9] {
+  _id,
+  name,
+  paragraph_content,
+  icon,
+  link,
+  price_model,
+  price,
+  type,
+  tags,
+  _createdAt,
+  _updatedAt
+}
+
+// 14. Pobierz narzędzia według daty treści
+*[_type == "aiTools" && content_date >= "START_DATE" && content_date <= "END_DATE"] | order(content_date desc) {
+  _id,
+  name,
+  content_date,
+  paragraph_content,
+  icon,
+  link,
+  price_model,
+  price,
+  type,
+  tags,
+  _createdAt,
+  _updatedAt
+}
+
+// 15. Statystyki narzędzi AI
+{
+  "totalTools": count(*[_type == "aiTools"]),
+  "freeTools": count(*[_type == "aiTools" && price_model == "free"]),
+  "freemiumTools": count(*[_type == "aiTools" && price_model == "freemium"]),
+  "paidTools": count(*[_type == "aiTools" && price_model == "paid"]),
+  "subscriptionTools": count(*[_type == "aiTools" && price_model == "subscription"]),
+  "toolsWithLinks": count(*[_type == "aiTools" && defined(link)]),
+  "totalTags": count(*[_type == "aiTools"].tags[]),
+  "averageTagsPerTool": count(*[_type == "aiTools"].tags[]) / count(*[_type == "aiTools"])
+}
+
+// 16. Pobierz unikalne typy narzędzi
+array::unique(*[_type == "aiTools"].type)
+
+// 17. Pobierz unikalne modele cenowe
+array::unique(*[_type == "aiTools"].price_model)
+
+// 18. Pobierz unikalne typy rozliczenia
+array::unique(*[_type == "aiTools"].billing)
+
+// 19. Pobierz unikalne polityki zwrotów
+array::unique(*[_type == "aiTools"].refund)
+
+// 20. Pobierz wszystkie unikalne tagi
+array::unique(*[_type == "aiTools"].tags[])
+
+// 21. Pobierz narzędzia pogrupowane według typu
+*[_type == "aiTools"] | order(type asc, name asc) {
+  _id,
+  name,
+  paragraph_content,
+  icon,
+  link,
+  price_model,
+  price,
+  type,
+  tags
+} | group(type)
+
+// 22. Pobierz narzędzia pogrupowane według modelu cenowego
+*[_type == "aiTools"] | order(price_model asc, name asc) {
+  _id,
+  name,
+  paragraph_content,
+  icon,
+  link,
+  price_model,
+  price,
+  billing,
+  type,
+  tags
+} | group(price_model)
+
+// 23. Pobierz narzędzia z paginacją
+*[_type == "aiTools"] | order(name asc) [0..9] {
+  _id,
+  name,
+  paragraph_content,
+  icon,
+  link,
+  price_model,
+  price,
+  type,
+  tags,
+  _createdAt,
+  _updatedAt
+}
+
+// 24. Wyszukiwanie zaawansowane (nazwa, opis, tagi)
+*[_type == "aiTools" && (
+  name match "*SEARCH_TERM*" ||
+  paragraph_content match "*SEARCH_TERM*" ||
+  "SEARCH_TERM" in tags
+)] | order(name asc) {
+  _id,
+  name,
+  paragraph_content,
+  icon,
+  link,
+  price_model,
+  price,
+  type,
+  tags,
+  _createdAt,
+  _updatedAt
+}
+
+// 25. Pobierz narzędzia z określoną liczbą tagów
+*[_type == "aiTools" && count(tags) >= MIN_TAGS && count(tags) <= MAX_TAGS] | order(name asc) {
+  _id,
+  name,
+  paragraph_content,
+  icon,
+  link,
+  price_model,
+  price,
+  type,
+  tags,
+  "tagsCount": count(tags),
+  _createdAt,
+  _updatedAt
+}
+
+// 26. Sprawdź integralność danych narzędzi
+*[_type == "aiTools"] {
+  _id,
+  name,
+  "hasDescription": defined(paragraph_content) && paragraph_content != "",
+  "hasIcon": defined(icon) && icon != "",
+  "hasLink": defined(link),
+  "hasPriceModel": defined(price_model),
+  "hasType": defined(type),
+  "hasTags": defined(tags) && count(tags) > 0,
+  "tagsCount": count(tags),
+  "hasPrice": defined(price) && price != "",
+  "hasBilling": defined(billing),
+  "hasRefund": defined(refund)
+}
+
+// 27. Eksport wszystkich danych narzędzi (pełna struktura)
+*[_type == "aiTools"] {
+  _id,
+  _type,
+  _createdAt,
+  _updatedAt,
+  _rev,
+  name,
+  content_date,
+  code_content,
+  paragraph_content,
+  icon,
+  link,
+  price_model,
+  price,
+  billing,
+  refund,
+  tags,
+  type
+}
+
+// 28. Pobierz narzędzia z rozszerzonymi informacjami
+*[_type == "aiTools"] | order(name asc) {
+  _id,
+  name,
+  content_date,
+  code_content,
+  paragraph_content,
+  icon,
+  link,
+  price_model,
+  price,
+  billing,
+  refund,
+  tags,
+  type,
+  "tagsCount": count(tags),
+  "hasLink": defined(link),
+  "isFree": price_model == "free",
+  "isFreemium": price_model == "freemium",
+  "isPaid": price_model in ["paid", "subscription", "one-time", "usage-based"],
+  "descriptionLength": length(paragraph_content),
+  _createdAt,
+  _updatedAt
+}
+
+// 29. Pobierz podobne narzędzia (na podstawie typu i tagów)
+*[_type == "aiTools" && _id != "TOOL_ID" && (
+  type == *[_type == "aiTools" && _id == "TOOL_ID"][0].type ||
+  count(tags[@ in *[_type == "aiTools" && _id == "TOOL_ID"][0].tags]) > 0
+)] | order(name asc) {
+  _id,
+  name,
+  paragraph_content,
+  icon,
+  link,
+  price_model,
+  price,
+  type,
+  tags,
+  "commonTags": count(tags[@ in *[_type == "aiTools" && _id == "TOOL_ID"][0].tags]),
+  "sameType": type == *[_type == "aiTools" && _id == "TOOL_ID"][0].type
+}
+
+// 30. Analiza popularności tagów
+*[_type == "aiTools"].tags[] | group(_) | {
+  "tag": _key,
+  "count": count(_),
+  "tools": *[_type == "aiTools" && @ in tags][0..2]{name}
+} | order(count desc)
+
+// 31. Pobierz narzędzia według kombinacji filtrów
+*[_type == "aiTools" && 
+  type == "TOOL_TYPE" && 
+  price_model == "PRICE_MODEL" && 
+  billing == "BILLING_TYPE"
+] | order(name asc) {
+  _id,
+  name,
+  paragraph_content,
+  icon,
+  link,
+  price_model,
+  price,
+  billing,
+  refund,
+  type,
+  tags,
+  _createdAt,
+  _updatedAt
+}
+
+// 32. Pobierz narzędzia z trial period
+*[_type == "aiTools" && refund == "trial"] | order(name asc) {
+  _id,
+  name,
+  paragraph_content,
+  icon,
+  link,
+  price_model,
+  price,
+  billing,
+  refund,
+  type,
+  tags,
+  _createdAt,
+  _updatedAt
+}
+
+// 33. Pobierz narzędzia z money-back guarantee
+*[_type == "aiTools" && refund == "money-back"] | order(name asc) {
+  _id,
+  name,
+  paragraph_content,
+  icon,
+  link,
+  price_model,
+  price,
+  billing,
+  refund,
+  type,
+  tags,
+  _createdAt,
+  _updatedAt
+}
+
+// 34. Wyszukiwanie narzędzi z określonym tagiem i typem
+*[_type == "aiTools" && type == "TOOL_TYPE" && "SEARCH_TAG" in tags] | order(name asc) {
+  _id,
+  name,
+  paragraph_content,
+  icon,
+  link,
+  price_model,
+  price,
+  type,
+  tags,
+  _createdAt,
+  _updatedAt
+}
+
+// 35. Pobierz narzędzia posortowane według daty treści
+*[_type == "aiTools" && defined(content_date)] | order(content_date desc) {
+  _id,
+  name,
+  content_date,
+  paragraph_content,
+  icon,
+  link,
+  price_model,
+  price,
+  type,
+  tags,
+  _createdAt,
+  _updatedAt
+} 
