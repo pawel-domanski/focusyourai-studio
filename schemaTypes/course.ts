@@ -7,6 +7,12 @@ export default defineType({
   icon: () => '🎓',
   fields: [
     defineField({
+      name: 'sort',
+      title: 'Sort',
+      type: 'number',
+      validation: Rule => Rule.integer(),
+    }),
+    defineField({
       name: 'subject',
       title: 'Subject',
       type: 'string',
