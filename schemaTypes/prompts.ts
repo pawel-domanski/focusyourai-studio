@@ -20,12 +20,14 @@ export default defineType({
     defineField({
       name: 'code_content',
       title: 'Code Content',
-      type: 'string',
+      type: 'array',
+      of: [{type: 'block'}],
     }),
     defineField({
       name: 'paragraph_content',
       title: 'Paragraph Content',
-      type: 'text',
+      type: 'array',
+      of: [{type: 'block'}],
     }),
   ],
 }) 

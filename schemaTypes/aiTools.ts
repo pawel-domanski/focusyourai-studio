@@ -13,6 +13,22 @@ export default defineType({
       validation: Rule => Rule.required(),
     }),
     defineField({
+      name: 'image',
+      title: 'Tool Image',
+      type: 'image',
+      options: {
+        hotspot: true,
+      },
+      fields: [
+        {
+          name: 'alt',
+          type: 'string',
+          title: 'Alternative text',
+          description: 'Important for SEO and accessibility.',
+        }
+      ]
+    }),
+    defineField({
       name: 'content_date',
       title: 'Content Date',
       type: 'date',
@@ -25,7 +41,8 @@ export default defineType({
     defineField({
       name: 'paragraph_content',
       title: 'Description',
-      type: 'text',
+      type: 'array',
+      of: [{type: 'block'}],
     }),
     defineField({
       name: 'icon',
@@ -73,29 +90,7 @@ export default defineType({
         ]
       }
     }),
-    defineField({
-      name: 'refund',
-      title: 'Refund Policy',
-      type: 'string',
-      options: {
-        list: [
-          { title: 'Money-back guarantee', value: 'money-back' },
-          { title: 'No refund', value: 'no-refund' },
-          { title: 'Partial refund', value: 'partial' },
-          { title: 'Trial period', value: 'trial' },
-          { title: 'Not applicable', value: 'na' }
-        ]
-      }
-    }),
-    defineField({
-      name: 'tags',
-      title: 'Tags',
-      type: 'array',
-      of: [{type: 'string'}],
-      options: {
-        layout: 'tags'
-      }
-    }),
+
     defineField({
       name: 'type',
       title: 'Tool Type',
