@@ -18,6 +18,11 @@ export default defineType({
       type: 'string',
     }),
     defineField({
+      name: 'icon',
+      title: 'Icon',
+      type: 'string',
+    }),
+    defineField({
       name: 'part',
       title: 'Part',
       type: 'reference',
